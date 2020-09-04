@@ -2,6 +2,12 @@
 
 set -e
 
+if [ -z "$SUDO_USER" ]
+then
+  echo "\$SUDO_USER must be set for this script to function properly"
+  exit 1
+fi
+
 apt install -y curl
 
 echo "Preparing to install kubectl"
@@ -21,4 +27,3 @@ echo "KVM is active!"
 
 usermod -aG libvirt $SUDO_USER
 usermod -aG kvm $SUDO_USER
-

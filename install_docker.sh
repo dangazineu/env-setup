@@ -2,6 +2,12 @@
 
 set -e
 
+if [ -z "$SUDO_USER" ]
+then
+  echo "\$SUDO_USER must be set for this script to function properly"
+  exit 1
+fi
+
 apt remove -y docker docker-engine docker.io containerd runc || true
 
 echo "Installing tools..."
