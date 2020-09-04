@@ -19,8 +19,8 @@ systemctl is-active libvirtd
 
 echo "KVM is active!"
 
-usermod -aG libvirt $1
-usermod -aG kvm $1
+usermod -aG libvirt $SUDO_USER
+usermod -aG kvm $SUDO_USER
 
 curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 \
   && chmod +x minikube
