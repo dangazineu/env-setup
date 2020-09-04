@@ -2,7 +2,7 @@
 
 set -e
 
-apt remove -y docker docker-engine docker.io containerd runc
+apt remove -y docker docker-engine docker.io containerd runc || true
 
 echo "Installing tools..."
 
@@ -25,7 +25,7 @@ apt update
 apt install -y  docker-ce docker-ce-cli containerd.io 
 
 groupadd docker || true
-usermod -aG docker $1
+usermod -aG docker $SUDO_USER
 
 systemctl enable docker
 
