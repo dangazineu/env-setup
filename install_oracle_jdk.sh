@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Only works for Oracle JDK 11 and up. Expects the full path to the tar.gz file as a param.
+
 TGZ=$1
 
 JAVA_VERSION=jdk-$(echo $TGZ | grep -Po '(?<=jdk-)[^_]+')
@@ -37,3 +39,9 @@ export PATH="\$JAVA_HOME/bin:\$PATH"
 EOF
 
 chmod 755 $JAVA_ENV
+
+echo ""
+echo ""
+echo "JDK installed. Run the following command to add it to your \$PATH in this session:"
+echo ""
+echo "source $JAVA_ENV"
