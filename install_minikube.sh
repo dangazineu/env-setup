@@ -15,5 +15,21 @@ rm minikube
 
 /usr/local/bin/minikube config set vm-driver kvm2
 
+apt install bash-completion
+
+KUBE_ENV=/etc/profile.d/minikube-env.sh
+
+if [ -f $KUBE_ENV ] ; then
+  echo "$KUBE_ENV already exists, deleting..."
+  rm $KUBE_ENV
+fi
+
+cat <<EOF > $KUBE_ENV
+source <(minikube completion bash)
+EOF
+
+chmod 755 $KUBE_ENV
+
 echo "Minikube is installed!"
 
+    $
