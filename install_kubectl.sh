@@ -27,3 +27,16 @@ echo "KVM is active!"
 
 usermod -aG libvirt $SUDO_USER
 usermod -aG kvm $SUDO_USER
+
+apt install bash-completion
+KUBECTL_ENV=/etc/profile.d/kubectl-env.sh
+
+if [ -f $KUBECTL_ENV ] ; then
+  echo "$KUBECTL_ENV already exists, deleting..."
+  rm $KUBECTL_ENV
+fi
+
+cat <<EOF > $KUBECTL_ENV
+source <(kubectl completion bash)
+EOF
+chmod 755 $KUBECTL_ENV

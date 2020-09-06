@@ -2,6 +2,8 @@
 
 set -e
 
+
+
 ./install_docker.sh
 ./install_kvm.sh
 ./install_kubectl.sh
@@ -16,19 +18,17 @@ rm minikube
 /usr/local/bin/minikube config set vm-driver kvm2
 
 apt install bash-completion
+MINIKUBE_ENV=/etc/profile.d/minikube-env.sh
 
-KUBE_ENV=/etc/profile.d/minikube-env.sh
-
-if [ -f $KUBE_ENV ] ; then
-  echo "$KUBE_ENV already exists, deleting..."
-  rm $KUBE_ENV
+if [ -f $MINIKUBE_ENV ] ; then
+  echo "$MINIKUBE_ENV already exists, deleting..."
+  rm $MINIKUBE_ENV
 fi
 
-cat <<EOF > $KUBE_ENV
+cat <<EOF > $MINIKUBE_ENV
 source <(minikube completion bash)
 EOF
-
-chmod 755 $KUBE_ENV
+chmod 755 $MINIKUBE_ENV
 
 echo "Minikube is installed!"
 
