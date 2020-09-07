@@ -15,21 +15,20 @@ mkdir -p /usr/local/bin/
 install minikube /usr/local/bin/
 rm minikube
 
-/usr/local/bin/minikube config set vm-driver kvm2
-
 apt install bash-completion
-MINIKUBE_ENV=/etc/profile.d/minikube-env.sh
+MINIKUBE_COMP=/etc/bash_completion.d/minikube-completion
 
-if [ -f $MINIKUBE_ENV ] ; then
-  echo "$MINIKUBE_ENV already exists, deleting..."
-  rm $MINIKUBE_ENV
+if [ -f $MINIKUBE_COMP ] ; then
+  echo "$MINIKUBE_COMP already exists, deleting..."
+  rm $MINIKUBE_COMP
 fi
-
-cat <<EOF > $MINIKUBE_ENV
+cat <<EOF > $MINIKUBE_COMP
 source <(minikube completion bash)
 EOF
-chmod 755 $MINIKUBE_ENV
+chmod 755 $MINIKUBE_COMP
 
 echo "Minikube is installed!"
-
-    $
+echo "Now configure properties like:"
+echo ""
+echo "minikube config set vm-driver kvm2"
+echo "minikube config set memory 12288"

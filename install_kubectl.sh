@@ -29,14 +29,14 @@ usermod -aG libvirt $SUDO_USER
 usermod -aG kvm $SUDO_USER
 
 apt install bash-completion
-KUBECTL_ENV=/etc/profile.d/kubectl-env.sh
+KUBECTL_COMP=/etc/bash_completion.d/kubectl-completion
 
-if [ -f $KUBECTL_ENV ] ; then
-  echo "$KUBECTL_ENV already exists, deleting..."
-  rm $KUBECTL_ENV
+if [ -f $KUBECTL_COMP ] ; then
+  echo "$KUBECTL_COMP already exists, deleting..."
+  rm $KUBECTL_COMP
 fi
 
-cat <<EOF > $KUBECTL_ENV
+cat <<EOF > $KUBECTL_COMP
 source <(kubectl completion bash)
 EOF
-chmod 755 $KUBECTL_ENV
+chmod 755 $KUBECTL_COMP
