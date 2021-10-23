@@ -5,7 +5,7 @@ TGZ=$1
 apt install build-essential libz-dev zlib1g-dev -y
 
 #TODO parse this from filename
-GRAALVM_VERSION=graalvm-ce-java11-20.3.0
+GRAALVM_VERSION=graalvm-ce-java11-21.3.0
 GRAALVM_BASE_PATH=/usr/lib
 GRAALVM_HOME=$GRAALVM_BASE_PATH/graalvm
 GRAALVM_DIR=$GRAALVM_BASE_PATH/$GRAALVM_VERSION

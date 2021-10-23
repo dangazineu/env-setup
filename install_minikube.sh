@@ -2,8 +2,6 @@
 
 set -e
 
-
-
 ./install_docker.sh
 ./install_kvm.sh
 ./install_kubectl.sh
