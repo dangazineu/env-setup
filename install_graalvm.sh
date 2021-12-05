@@ -1,11 +1,17 @@
 #!/bin/bash
 
-TGZ=$1
+# https://www.graalvm.org/downloads/
+
+VERSION=21.3.0
+DIST_NAME=graalvm-ce-java11-$VERSION
+FILE_NAME=graalvm-ce-java11-linux-amd64-$VERSION.tar.gz
+
+TGZ=https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-$VERSION/$FILE_NAME
 
 apt install build-essential libz-dev zlib1g-dev -y
 
 #TODO parse this from filename
-GRAALVM_VERSION=graalvm-ce-java11-21.3.0
+GRAALVM_VERSION=$DIST_NAME
 GRAALVM_BASE_PATH=/usr/lib
 GRAALVM_HOME=$GRAALVM_BASE_PATH/graalvm
 GRAALVM_DIR=$GRAALVM_BASE_PATH/$GRAALVM_VERSION
@@ -17,12 +23,12 @@ if [ -d $GRAALVM_DIR ] ; then
   rm -r $GRAALVM_DIR
 fi
 
-tar -xzf $TGZ -C $GRAALVM_BASE_PATH
-
 if [ -L "$GRAALVM_HOME" ] ; then
   echo "$GRAALVM_HOME already exists, deleting..."
   rm $GRAALVM_HOME
 fi
+
+wget --quiet -O - $TGZ | tar -xzf - -C $GRAALVM_BASE_PATH
 
 ln -s $GRAALVM_DIR $GRAALVM_HOME
 
