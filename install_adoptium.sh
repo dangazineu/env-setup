@@ -2,13 +2,6 @@
 
 set -e
 
-
-if [ -z "$SUDO_USER" ]
-then
-  echo "\$SUDO_USER must be set for this script to function properly"
-  exit 1
-fi
-
 source functions.sh
 install_command jq wget
 
@@ -20,7 +13,19 @@ else
   echo "Using provided Java version: $VERSION"
 fi
 
-INFO=$(wget --quiet -O -  "https://api.adoptium.net/v3/assets/latest/$VERSION/hotspot?architecture=x64&image_type=jdk&os=linux&vendor=eclipse" | jq '.[0]' )
+case $(uname) in
+  "Linux") OS=linux ;;
+  "Darwin") OS=mac ;;
+  *) echo "Unsupported OS" ; exit 1
+esac
+
+case $(uname -m) in
+  "arm64") ARCH=aarch64 ;;
+  "x86_64") ARCH=x64 ;;
+  *) echo "Unsupported architecture" ; exit 1
+esac
+
+INFO=$(wget --quiet -O -  "https://api.adoptium.net/v3/assets/latest/$VERSION/hotspot?architecture=$ARCH&image_type=jdk&os=$OS&vendor=eclipse" | jq '.[0]' )
 
 URL=$(echo $INFO | jq -r '.binary.package.link')
 
@@ -28,4 +33,18 @@ DIST_NAME=$(echo $INFO | jq -r '.release_name')
 
 echo "Latest available release for Java $VERSION is: $DIST_NAME"
 
-install_from_url $URL "java" $DIST_NAME
+case $OS in
+  "mac")
+    BASE_PATH="/Library/Java/JavaVirtualMachines" 
+    install_from_url $URL "java" $DIST_NAME "$BASE_PATH" "Contents/Home/bin" 
+    for JAVA_DIR in /Library/Java/JavaVirtualMachines/*/ ; do
+      if [ "$JAVA_DIR" != "$BASE_PATH/$DIST_NAME/" ] ; then
+        INFO_PLIST="$JAVA_DIR/Contents/Info.plist"
+        if [ -f $INFO_PLIST ] ; then
+          sudo mv $INFO_PLIST "$INFO_PLIST.disabled"
+        fi
+      fi
+    done
+    ;;
+  "linux") install_from_url $URL "java" $DIST_NAME ;;
+esac

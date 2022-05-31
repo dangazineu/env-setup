@@ -2,12 +2,6 @@
 
 set -e
 
-if [ -z "$SUDO_USER" ]
-then
-  echo "You must use \`sudo\` to run this script"
-  exit 1
-fi
-
 source functions.sh
 
 install_command curl
