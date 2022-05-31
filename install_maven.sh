@@ -1,36 +1,33 @@
 #!/bin/bash
 
-MAVEN_FILE_NAME=$1
+set -e
 
-MAVEN_VERSION=$(echo $MAVEN_FILE_NAME | grep -Po '(?<=apache-maven-)[^-]+')
-MAVEN_FOLDER=apache-maven-$MAVEN_VERSION
-MAVEN_BASE_PATH=/usr/local
-MAVEN_DIR=$MAVEN_BASE_PATH/$MAVEN_FOLDER
-M2_HOME=$MAVEN_BASE_PATH/maven
-
-echo "Installing Maven $MAVEN_VERSION from $MAVEN_FILE_NAME"
-if [ -d $MAVEN_DIR ] ; then
-  echo "$MAVEN_DIR already exists, deleting..."
-  rm -r $MAVEN_DIR
-fi
-tar -xzf $MAVEN_FILE_NAME -C $MAVEN_BASE_PATH
-
-if [ -L "$M2_HOME" ] ; then
-  echo "$M2_HOME already exists, deleting..."
-  rm $M2_HOME
-fi
-ln -s $MAVEN_BASE_PATH/$MAVEN_FOLDER $M2_HOME
-
-MAVEN_ENV=/etc/profile.d/maven-env.sh
-if [ -f $MAVEN_ENV ] ; then
-  echo "$MAVEN_ENV already exists, deleting..."
-  rm $MAVEN_ENV
+if [ -z "$SUDO_USER" ]
+then
+  echo "You must use \`sudo\` to run this script"
+  exit 1
 fi
 
-cat <<EOF > $MAVEN_ENV
-#Setup M2_HOME path
-export M2_HOME="$M2_HOME"
-export PATH="\$M2_HOME/bin:\$PATH"
-EOF
+CDN=https://dlcdn.apache.org/maven/maven-3/
 
-chmod 755 $MAVEN_ENV
+if [ "$#" -eq 0 ]; then
+  VERSION=$(curl -s $CDN | grep -o "3.[0-9].[0-9]" | sort -ru | head -n 1)
+  echo "No Maven version was provided, so retrieved latest from download url: $VERSION"
+else
+  VERSION=$1
+  echo "Using provided Maven version: $VERSION"
+fi
+
+if [ -z "$VERSION" ] ; then
+  echo "Couldn't determine latest version to download"
+  exit 1
+fi
+
+DIST_NAME=apache-maven-$VERSION
+FILE_NAME=$DIST_NAME-bin.tar.gz
+URL=$CDN/$VERSION/binaries/$FILE_NAME
+
+source functions.sh
+
+install_from_url $URL "maven" $DIST_NAME
+
