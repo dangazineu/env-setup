@@ -1,10 +1,10 @@
 #!/bin/bash
 
 function install_package {
-#  if ! [ -x "$(command -v brew)" ]; then
-#    echo "brew is not supported in this environment"
-#    exit 1
-#  fi
+  if ! [ -x "$(command -v brew)" ]; then
+    echo "brew is not supported in this environment"
+    exit 1
+  fi
 
   for var in "$@" ; do
     brew install $var
