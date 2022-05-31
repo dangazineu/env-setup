@@ -8,6 +8,10 @@ then
   exit 1
 fi
 
+source functions.sh
+
+install_command curl
+
 CDN=https://dlcdn.apache.org/maven/maven-3/
 
 if [ "$#" -eq 0 ]; then
@@ -27,7 +31,4 @@ DIST_NAME=apache-maven-$VERSION
 FILE_NAME=$DIST_NAME-bin.tar.gz
 URL=$CDN/$VERSION/binaries/$FILE_NAME
 
-source functions.sh
-
 install_from_url $URL "maven" $DIST_NAME
-

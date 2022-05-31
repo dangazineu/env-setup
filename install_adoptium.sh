@@ -2,14 +2,15 @@
 
 set -e
 
+
 if [ -z "$SUDO_USER" ]
 then
   echo "\$SUDO_USER must be set for this script to function properly"
   exit 1
 fi
 
-# first installs dependencies
-apt -qq install -y jq wget tar
+source functions.sh
+install_command jq wget
 
 if [ "$#" -eq 0 ]; then
   VERSION=$(wget --quiet -O - https://api.adoptium.net/v3/info/available_releases | jq '.most_recent_lts')
@@ -27,7 +28,4 @@ DIST_NAME=$(echo $INFO | jq -r '.release_name')
 
 echo "Latest available release for Java $VERSION is: $DIST_NAME"
 
-source functions.sh
-
 install_from_url $URL "java" $DIST_NAME
-
