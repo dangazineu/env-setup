@@ -35,7 +35,7 @@ function add_to_path {
     $RM_CMD $ENV_FILE
   fi
 
-$BASH_CMD -c "cat <<EOF > $ENV_FILE
+$BASH_CMD -c "cat <<'EOF' > $ENV_FILE
 export PATH=$PROGRAM_PATH:\$PATH
 EOF"
 
