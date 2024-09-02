@@ -23,11 +23,14 @@ function add_to_path {
   if is_sudo ; then
     local RM_CMD="rm"
     local CAT_CMD="cat"
+    local BASH_CMD="bash"
     local CHMOD_CMD="chmod"
     local SUDO_CMD=""
   else
     local RM_CMD="sudo rm"
     local CAT_CMD="sudo cat"
+    local BASH_CMD="sudo bash"
+    local CHMOD_CMD="sudo chmod"
     local SUDO_CMD="sudo"
   fi
 
@@ -37,11 +40,18 @@ function add_to_path {
     $SUDO_CMD rm $ENV_FILE
   fi
 
-#$SUDO_CMD cat <<EOF > $ENV_FILE
-#    export PATH="$PROGRAM_PATH:\$PATH"
-#EOF
-
   $SUDO_CMD bash -c "echo export PATH=\\\"$PROGRAM_PATH:\\\$PATH\\\" > $ENV_FILE"
   $SUDO_CMD chmod 755 $ENV_FILE
+
+  ENV_FILE=/etc/profile.d/$PROGRAM_NAME.sh
+  if [ -f $ENV_FILE ] ; then
+    $RM_CMD $ENV_FILE
+  fi
+
+$BASH_CMD -c "cat <<'EOF' > $ENV_FILE
+export PATH=$PROGRAM_PATH:\$PATH
+EOF"
+
+  $CHMOD_CMD 755 $ENV_FILE
   echo $ENV_FILE
 }
