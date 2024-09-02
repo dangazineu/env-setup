@@ -2,9 +2,9 @@
 
 # https://www.graalvm.org/downloads/
 
-VERSION=21.3.0
-DIST_NAME=graalvm-ce-java11-$VERSION
-FILE_NAME=graalvm-ce-java11-linux-amd64-$VERSION.tar.gz
+VERSION=22.3.1
+DIST_NAME=graalvm-ce-java17-$VERSION
+FILE_NAME=graalvm-ce-java17-linux-amd64-$VERSION.tar.gz
 
 TGZ=https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-$VERSION/$FILE_NAME
 
@@ -12,7 +12,7 @@ apt install build-essential libz-dev zlib1g-dev -y
 
 #TODO parse this from filename
 GRAALVM_VERSION=$DIST_NAME
-GRAALVM_BASE_PATH=/usr/lib
+GRAALVM_BASE_PATH=/opt
 GRAALVM_HOME=$GRAALVM_BASE_PATH/graalvm
 GRAALVM_DIR=$GRAALVM_BASE_PATH/$GRAALVM_VERSION
 
@@ -32,7 +32,7 @@ wget --quiet -O - $TGZ | tar -xzf - -C $GRAALVM_BASE_PATH
 
 ln -s $GRAALVM_DIR $GRAALVM_HOME
 
-GRAALVM_ENV=/etc/profile.d/graalvm-env.sh
+GRAALVM_ENV=/etc/profile.d/graalvm.sh
 
 if [ -f $GRAALVM_ENV ] ; then
   echo "$GRAALVM_ENV already exists, deleting..."

@@ -27,7 +27,7 @@ function install_from_url {
   install_command wget tar
 
   if [ "$#" -lt 3 ] ; then
-    echo "This function expects exactly 3 parameters"
+    echo "This function expects at least 3 parameters"
     exit 1
   fi
 
@@ -59,6 +59,15 @@ function install_from_url {
     RM_CMD="rm"
   fi
 
+  if [[ $URL == *.gz ]] ; then
+    TAR_CMD="$TAR_CMD -xzf"
+  elif [[ $URL == *.xz ]] ; then
+    TAR_CMD="$TAR_CMD -J -xvf"
+  else
+    echo "Unsupported file extension $URL"
+    exit 1
+  fi
+
   if [ -d $DEST_PATH ] ; then
     echo "Replacing contents on $DEST_PATH"
     $RM_CMD -r $DEST_PATH
@@ -66,7 +75,7 @@ function install_from_url {
     echo "Installing on $DEST_PATH"
   fi
 
-  wget --quiet -O - $URL | $TAR_CMD -xzf - -C $BASE_PATH
+  wget --quiet -O - $URL | $TAR_CMD - -C $BASE_PATH
 
   ENV_FILE=$(add_to_path $PROGRAM_NAME "$DEST_PATH/$PATH_SUFFIX")
   echo "Created $ENV_FILE"

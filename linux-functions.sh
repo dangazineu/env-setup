@@ -20,15 +20,28 @@ function add_to_path {
   local PROGRAM_NAME=$1
   local PROGRAM_PATH=$2
 
-  ENV_FILE=/etc/profile.d/$PROGRAM_NAME.sh
-  if [ -f $ENV_FILE ] ; then
-    rm $ENV_FILE
+  if is_sudo ; then
+    local RM_CMD="rm"
+    local CAT_CMD="cat"
+    local CHMOD_CMD="chmod"
+    local SUDO_CMD=""
+  else
+    local RM_CMD="sudo rm"
+    local CAT_CMD="sudo cat"
+    local SUDO_CMD="sudo"
   fi
 
-cat <<EOF > $ENV_FILE
-    export PATH="$PROGRAM_PATH:\$PATH"
-EOF
 
-  chmod 755 $ENV_FILE
+  ENV_FILE=/etc/profile.d/$PROGRAM_NAME.sh
+  if [ -f $ENV_FILE ] ; then
+    $SUDO_CMD rm $ENV_FILE
+  fi
+
+#$SUDO_CMD cat <<EOF > $ENV_FILE
+#    export PATH="$PROGRAM_PATH:\$PATH"
+#EOF
+
+  $SUDO_CMD bash -c "echo export PATH=\\\"$PROGRAM_PATH:\\\$PATH\\\" > $ENV_FILE"
+  $SUDO_CMD chmod 755 $ENV_FILE
   echo $ENV_FILE
 }
