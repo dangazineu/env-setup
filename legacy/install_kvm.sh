@@ -8,13 +8,16 @@ then
   exit 1
 fi
 
+echo "KVM: Installing prerequisites"
 apt install -y curl
 
+echo "KVM: Installing KVM"
 apt install -y qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virtinst virt-manager
 
-usermod -aG libvirt $SUDO_USER
-usermod -aG kvm $SUDO_USER
+echo "KVM: Configuring users"
+usermod -aG libvirt "$SUDO_USER"
+usermod -aG kvm "$SUDO_USER"
 
-systemctl is-active libvirtd
-
-echo "KVM is active!"
+echo "KVM: Enabling services"
+systemctl enable libvirtd
+echo "KVM: Done"

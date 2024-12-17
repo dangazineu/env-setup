@@ -8,10 +8,10 @@ then
   exit 1
 fi
 
-echo "Removing old versions of docker..."
+echo "Docker: Removing old versions of docker..."
 apt remove -y docker docker-engine docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc || true
 
-echo "Installing tools..."
+echo "Docker: Installing tools..."
 
 # Add Docker's official GPG key:
 apt update
@@ -29,8 +29,11 @@ apt update
 
 apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
+echo "Docker: Configuring users"
 groupadd docker || true
-usermod -aG docker $SUDO_USER
+usermod -aG docker "$SUDO_USER"
 
+echo "Docker: Enabling services"
 systemctl enable docker
+echo "Docker: Done"
 
