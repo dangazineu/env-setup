@@ -3,10 +3,9 @@
 set -e
 
 source functions.sh
-install_command jq wget
 
 if [ "$#" -eq 0 ]; then
-  VERSION=$(wget --quiet -O - https://api.github.com/repos/cli/cli/releases/latest | jq -r '.tag_name' | sed 's/^v//')
+  VERSION=$(get_latest_github_release "cli/cli")
   echo "No version was provided, default is latest: $VERSION"
 else
   VERSION=$1
