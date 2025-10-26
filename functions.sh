@@ -23,6 +23,22 @@ function install_command {
   done
 }
 
+# Fetches the latest release version from a GitHub repository.
+# Strips the 'v' prefix if present.
+# Usage: get_latest_github_release <owner/repo>
+# Example: VERSION=$(get_latest_github_release "cli/cli")
+function get_latest_github_release {
+  if [ "$#" -ne 1 ] ; then
+    echo "This function expects exactly 1 parameter: owner/repo"
+    exit 1
+  fi
+
+  local REPO=$1
+  install_command jq wget
+
+  wget --quiet -O - "https://api.github.com/repos/$REPO/releases/latest" | jq -r '.tag_name' | sed 's/^v//'
+}
+
 function install_from_url {
   install_command wget tar
 
