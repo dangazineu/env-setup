@@ -3,38 +3,33 @@
 set -e
 
 source functions.sh
-
-if [ "$(uname | tr '[:upper:]' '[:lower:]')" != "linux" ]; then
-  echo "This script is only supported on Linux"
-  exit 1
-fi
-
-install_command curl
-
-CDN=https://go.dev/dl
+install_command jq wget
 
 if [ "$#" -eq 0 ]; then
-  VERSION=$(curl -s "$CDN/" | \
-  grep "download" | \
-  grep -o "go[0-9]\{1,2\}\.[0-9]\{1,2\}\.[0-9]\{1,2\}\." | \
-  grep -o "[0-9]\{1,2\}\.[0-9]\{1,2\}\.[0-9]\{1,2\}" | \
-  sort -ruV | \
-  head -n 1)
-
-  echo "No version was provided, so retrieved latest from download url: $VERSION"
+  VERSION=$(wget --quiet -O - https://go.dev/dl/?mode=json | jq -r '.[0].version' | sed 's/^go//')
+  echo "No Go version was provided, default is latest stable: $VERSION"
 else
   VERSION=$1
-  echo "Using provided version: $VERSION"
+  echo "Using provided Go version: $VERSION"
 fi
 
-if [ -z "$VERSION" ] ; then
-  echo "Couldn't determine latest version to download"
-  exit 1
-fi
+case $(uname) in
+  "Linux") OS=linux ;;
+  "Darwin") OS=darwin ;;
+  *) echo "Unsupported OS" ; exit 1
+esac
+
+case $(uname -m) in
+  "arm64") ARCH=arm64 ;;
+  "x86_64") ARCH=amd64 ;;
+  *) echo "Unsupported architecture" ; exit 1
+esac
 
 DIST_NAME=go$VERSION
-FILE_NAME=$DIST_NAME.linux-amd64.tar.gz
-URL=$CDN/$FILE_NAME
+FILE_NAME=$DIST_NAME.$OS-$ARCH.tar.gz
+URL=https://go.dev/dl/$FILE_NAME
 
-install_from_url "$URL" "go" "go"
+echo "Latest available release for Go $VERSION is: $DIST_NAME"
+
+install_from_url $URL "go" "go"
 
