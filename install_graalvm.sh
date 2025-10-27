@@ -1,55 +1,61 @@
 #!/bin/bash
 
-# https://www.graalvm.org/downloads/
+set -e
 
-VERSION=22.3.1
-DIST_NAME=graalvm-ce-java17-$VERSION
-FILE_NAME=graalvm-ce-java17-linux-amd64-$VERSION.tar.gz
+source functions.sh
+install_command jq wget
 
-TGZ=https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-$VERSION/$FILE_NAME
-
-apt install build-essential libz-dev zlib1g-dev -y
-
-#TODO parse this from filename
-GRAALVM_VERSION=$DIST_NAME
-GRAALVM_BASE_PATH=/opt
-GRAALVM_HOME=$GRAALVM_BASE_PATH/graalvm
-GRAALVM_DIR=$GRAALVM_BASE_PATH/$GRAALVM_VERSION
-
-echo "Installing $GRAALVM_VERSION from $TGZ"
-
-if [ -d $GRAALVM_DIR ] ; then
-  echo "$GRAALVM_DIR already exists, deleting..."
-  rm -r $GRAALVM_DIR
+if [ "$#" -eq 0 ]; then
+  VERSION=$(get_latest_github_release "graalvm/graalvm-ce-builds" | sed 's/^jdk-//')
+  echo "No GraalVM version was provided, default is latest stable: $VERSION"
+else
+  VERSION=$1
+  echo "Using provided GraalVM version: $VERSION"
 fi
 
-if [ -L "$GRAALVM_HOME" ] ; then
-  echo "$GRAALVM_HOME already exists, deleting..."
-  rm $GRAALVM_HOME
+case $(uname) in
+  "Linux") OS=linux ;;
+  "Darwin") OS=macos ;;
+  *) echo "Unsupported OS" ; exit 1
+esac
+
+case $(uname -m) in
+  "arm64") ARCH=aarch64 ;;
+  "x86_64") ARCH=x64 ;;
+  *) echo "Unsupported architecture" ; exit 1
+esac
+
+# GraalVM uses jdk- prefix in tags
+TAG_VERSION=jdk-$VERSION
+DIST_NAME=graalvm-community-jdk-$VERSION
+FILE_NAME=graalvm-community-jdk-${VERSION}_${OS}-${ARCH}_bin.tar.gz
+URL=https://github.com/graalvm/graalvm-ce-builds/releases/download/$TAG_VERSION/$FILE_NAME
+
+echo "Latest available release for GraalVM $VERSION is: $DIST_NAME"
+
+# Install build dependencies
+case $(uname) in
+  "Linux")
+    install_command build-essential libz-dev zlib1g-dev
+    ;;
+  "Darwin")
+    # macOS typically has these tools pre-installed
+    ;;
+esac
+
+# Install GraalVM using the common framework
+install_from_url $URL "graalvm" $DIST_NAME
+
+# Install native-image component
+GRAALVM_HOME=/opt/$DIST_NAME
+if [ -f "$GRAALVM_HOME/bin/gu" ]; then
+  echo "Installing native-image component..."
+  if ! is_sudo ; then
+    sudo $GRAALVM_HOME/bin/gu install native-image
+  else
+    $GRAALVM_HOME/bin/gu install native-image
+  fi
+  echo "Native-image component installed successfully"
+else
+  echo "Warning: gu utility not found at $GRAALVM_HOME/bin/gu"
 fi
-
-wget --quiet -O - $TGZ | tar -xzf - -C $GRAALVM_BASE_PATH
-
-ln -s $GRAALVM_DIR $GRAALVM_HOME
-
-GRAALVM_ENV=/etc/profile.d/graalvm.sh
-
-if [ -f $GRAALVM_ENV ] ; then
-  echo "$GRAALVM_ENV already exists, deleting..."
-  rm $GRAALVM_ENV
-fi
-
-cat <<EOF > $GRAALVM_ENV
-#Setup GRAALVM_HOME path
-export GRAALVM_HOME="$GRAALVM_HOME"
-EOF
-
-$GRAALVM_HOME/bin/gu install native-image
-
-chmod 755 $GRAALVM_ENV
-
-echo ""
-echo ""
-echo "GRAALVM installed. Run the following command to add it to your \$PATH in this session:"
-echo ""
-echo "source $GRAALVM_ENV"
