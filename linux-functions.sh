@@ -37,18 +37,10 @@ function add_to_path {
 
   ENV_FILE=/etc/profile.d/$PROGRAM_NAME.sh
   if [ -f $ENV_FILE ] ; then
-    $SUDO_CMD rm $ENV_FILE
-  fi
-
-  $SUDO_CMD bash -c "echo export PATH=\\\"$PROGRAM_PATH:\\\$PATH\\\" > $ENV_FILE"
-  $SUDO_CMD chmod 755 $ENV_FILE
-
-  ENV_FILE=/etc/profile.d/$PROGRAM_NAME.sh
-  if [ -f $ENV_FILE ] ; then
     $RM_CMD $ENV_FILE
   fi
 
-$BASH_CMD -c "cat <<'EOF' > $ENV_FILE
+  $BASH_CMD -c "cat <<'EOF' > $ENV_FILE
 export PATH=$PROGRAM_PATH:\$PATH
 EOF"
 
